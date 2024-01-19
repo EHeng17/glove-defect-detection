@@ -1,0 +1,9 @@
+# Install command: pip install -r requirements.txt
+
+# UI
+streamlit
+altair==4.0
+
+# Image Processing
+numpy
+opencv-python
