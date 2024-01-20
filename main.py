@@ -1,3 +1,4 @@
+# To run website: streamlit run main.py
 import streamlit as st
 
 st.set_page_config(layout="wide")
@@ -5,7 +6,6 @@ st.title("Glove Detection System")
 
 # Columns
 col1, col2 = st.columns(2)
-
 
 with col1:
     selected_glove = st.selectbox(
@@ -15,7 +15,7 @@ with col1:
 
     selected_defect = st.selectbox(
         label="Select type of defect",
-        options=["Select Defect","Defect 1", "Defect 2", "Defect 3"],
+        options=["Select Defect", "All","Defect 1", "Defect 2", "Defect 3"],
         disabled= selected_glove == "Select Glove"
     )
 
