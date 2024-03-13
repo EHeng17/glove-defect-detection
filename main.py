@@ -1,6 +1,8 @@
 # To run website: streamlit run main.py
 import streamlit as st
 from scripts.cloth.open_seam import detect_open_seam
+from scripts.cloth.tearing import detect_tearing
+from scripts.cloth.missing_finger import detect_missing_finger
 
 st.set_page_config(layout="wide")
 st.title("Glove Detection System")
@@ -24,6 +26,10 @@ def controller():
     # Add Dropdown logic here
     if selected_glove == "Cloth Glove" and selected_defect == "Seam":
         st.image(detect_open_seam(uploaded_image))
+    elif selected_glove == "Cloth Glove" and selected_defect == "Tearing":
+        st.image(detect_tearing(uploaded_image))
+    elif selected_glove == "Cloth Glove" and selected_defect == "Missing Finger":
+        st.image(detect_missing_finger(uploaded_image))
     else:
         st.text("No defect detected")
 
@@ -33,7 +39,7 @@ with col1:
     gloves = ["Select Glove","Cloth Glove", "Rubber Glove", "Poly Dot Glove", "Silicone Glove"]
 
     # Glove Defect For Each Glove
-    cloth_glove_defects = ["All","Seam", "Defect 2", "Defect 3"]
+    cloth_glove_defects = ["All","Seam", "Tearing", "Missing Finger"]
     rubber_glove_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
     poly_dot_glove_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
     silicone_4_defects = ["All","Defect 1", "Defect 2", "Defect 3"]

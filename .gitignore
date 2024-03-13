@@ -1,3 +1,6 @@
 # Ignore files and directories
 .venv/
 main.ipynb
+open_seam.ipynb
+missing_finger.ipynb
+tear.ipynb
