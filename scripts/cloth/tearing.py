@@ -58,9 +58,6 @@ def detect_tearing(image):
                 x, y, w, h = cv2.boundingRect(contour)
                 cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
-    if tear:
-        cv2.putText(output, "Defect Detected", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-
     if (tear):
         # Display defect
         cv2.putText(output, "Defect Detected", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
