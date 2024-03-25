@@ -3,6 +3,9 @@ import streamlit as st
 from scripts.cloth.open_seam import detect_open_seam
 from scripts.cloth.tearing import detect_tearing
 from scripts.cloth.missing_finger import detect_missing_finger
+from scripts.polydot.missing_dot import detect_missing_dot
+from scripts.polydot.color_inconsistency import detect_color_inconsistency
+from scripts.polydot.tearing_poly import detect_tearing_poly
 
 st.set_page_config(layout="wide")
 st.title("Glove Detection System")
@@ -30,6 +33,12 @@ def controller():
         st.image(detect_tearing(uploaded_image))
     elif selected_glove == "Cloth Glove" and selected_defect == "Missing Finger":
         st.image(detect_missing_finger(uploaded_image))
+    elif selected_glove == "Poly Dot Glove" and selected_defect == "Missing Dot":
+        st.image(detect_missing_dot(uploaded_image))
+    elif selected_glove == "Poly Dot Glove" and selected_defect == "Color Inconsistency":
+        st.image(detect_color_inconsistency(uploaded_image))
+    elif selected_glove == "Poly Dot Glove" and selected_defect == "Tearing":
+        st.image(detect_tearing_poly(uploaded_image))
     else:
         st.text("No defect detected")
 
@@ -41,7 +50,7 @@ with col1:
     # Glove Defect For Each Glove
     cloth_glove_defects = ["All","Seam", "Tearing", "Missing Finger"]
     rubber_glove_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
-    poly_dot_glove_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
+    poly_dot_glove_defects = ["All","Missing Dot", "Color Inconsistency", "Tearing"]
     silicone_4_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
 
     # Dropdown
