@@ -49,6 +49,7 @@ def detect_color_inconsistency(image):
     # Remove Noise (Median Filter)
     median_filtered_img = cv2.medianBlur(grayscale_mask, 3)
 
+    # Thresholding
     _, threshold = cv2.threshold(median_filtered_img, 0, 255, cv2.THRESH_BINARY)  
 
     # Dilation (Link all the dots in the glove)
@@ -70,5 +71,5 @@ def detect_color_inconsistency(image):
             cv2.rectangle(output, (x, y), (x + w, y + h), (0, 255, 0), 2)  # Draw the rectangle
             
     # Display defect
-    cv2.putText(output, f"Defect Detected", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 0), 2)
+    cv2.putText(output, f"Defect Detected", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
     return output

@@ -29,6 +29,7 @@ def detect_missing_dot(image):
     # Remove Noise (Median Filter)
     median_filtered_img = cv2.medianBlur(grayscale_mask, 3)
 
+    # Thresholding
     _, threshold = cv2.threshold(median_filtered_img, 0, 255, cv2.THRESH_BINARY)  
 
     # Erosion (Link all the missing dots in the glove)
@@ -60,7 +61,7 @@ def detect_missing_dot(image):
             text_y = y + int((h + text_size[1]) / 2)  # Center the text vertically
             cv2.putText(output, text, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
 
-    # Write the total missing dots if more than 1
+    # Display the total missing dots defect exists
     if total_missing_dot == 0:
         cv2.putText(img, "No Defect Detected", (12, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         return img

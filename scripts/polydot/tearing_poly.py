@@ -40,8 +40,6 @@ def detect_tearing_poly(image):
     median_filtered_img = cv2.medianBlur(grayscale_mask, 5)
 
     # Thresholding
-    # Used threshold as it is easier to detect edges more clearly
-    # Without thresholding, the edge detection might capture patterns of the glove as well
     _, threshold = cv2.threshold(median_filtered_img, 0, 255, cv2.THRESH_BINARY)  
 
     # Dilation (Link all the dots in the glove)
