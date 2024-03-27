@@ -6,6 +6,9 @@ from scripts.cloth.missing_finger import detect_missing_finger
 from scripts.polydot.missing_dot import detect_missing_dot
 from scripts.polydot.color_inconsistency import detect_color_inconsistency
 from scripts.polydot.tearing_poly import detect_tearing_poly
+from scripts.plastic.tear import detect_tear
+from scripts.plastic.stain import detect_stain
+from scripts.plastic.size import detect_inconsistent_size
 
 st.set_page_config(layout="wide")
 st.title("Glove Detection System")
@@ -20,8 +23,8 @@ def glove_defect_dropdown():
         return rubber_glove_defects
     elif selected_glove == "Poly Dot Glove":
         return poly_dot_glove_defects
-    elif selected_glove == "Silicone Glove":
-        return silicone_4_defects
+    elif selected_glove == "Plastic Glove":
+        return plastic_defects
     else:
         return []
 
@@ -39,19 +42,25 @@ def controller():
         st.image(detect_color_inconsistency(uploaded_image))
     elif selected_glove == "Poly Dot Glove" and selected_defect == "Tearing":
         st.image(detect_tearing_poly(uploaded_image))
+    elif selected_glove == "Plastic Glove" and selected_defect == "Tearing":
+        st.image(detect_tear(uploaded_image))
+    elif selected_glove == "Plastic Glove" and selected_defect == "Stain":
+        st.image(detect_stain(uploaded_image))
+    elif selected_glove == "Plastic Glove" and selected_defect == "Inconsistent Size":
+        st.image(detect_inconsistent_size(uploaded_image))
     else:
         st.text("No defect detected")
 
 # First Column (Left)
 with col1:
     # Glove Selection
-    gloves = ["Select Glove","Cloth Glove", "Rubber Glove", "Poly Dot Glove", "Silicone Glove"]
+    gloves = ["Select Glove","Cloth Glove", "Rubber Glove", "Poly Dot Glove", "Plastic Glove"]
 
     # Glove Defect For Each Glove
     cloth_glove_defects = ["All","Seam", "Tearing", "Missing Finger"]
     rubber_glove_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
     poly_dot_glove_defects = ["All","Missing Dot", "Color Inconsistency", "Tearing"]
-    silicone_4_defects = ["All","Defect 1", "Defect 2", "Defect 3"]
+    plastic_defects = ["All","Inconsistent Size", "Tearing", "Stain"]
 
     # Dropdown
     selected_glove = st.selectbox(
