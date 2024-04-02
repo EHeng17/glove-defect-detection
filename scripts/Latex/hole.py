@@ -1,15 +1,23 @@
 import cv2
 import numpy as np
+from PIL import Image
 
-def detect_hole(image_path):
+def latex_detect_hole(image):
+
+    original_image = Image.open(image)
+    original_image = np.array(original_image)
+    original_image = cv2.resize(original_image, (500, 500))
+    
+    image = cv2.cvtColor(np.array(original_image), cv2.COLOR_RGB2BGR)
+    
+    output = original_image.copy()
 
     #preprocessing
-    image = cv2.imread(image_path)
-    hsv = cv2.cvtColor(resized_image, cv2.COLOR_BGR2HSV)
-    lower_blue = np.array([90, 50, 50])
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    lower_blue = np.array([90, 50, 50]) 
     upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
-    blue_regions = cv2.bitwise_and(resized_image, resized_image, mask=mask)
+    blue_regions = cv2.bitwise_and(image, image, mask=mask)
     gray = cv2.cvtColor(blue_regions, cv2.COLOR_BGR2GRAY)
     _, binary = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY_INV)
 
@@ -22,7 +30,7 @@ def detect_hole(image_path):
     # Plotting Defect
     for contour in contours:
         x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(resized_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
-        cv2.putText(resized_image, "Hole", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        cv2.rectangle(output, (x, y), (x + w, y + h), (0, 0, 255), 2)
+        cv2.putText(output, "Hole", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-    return resized_image
+    return output

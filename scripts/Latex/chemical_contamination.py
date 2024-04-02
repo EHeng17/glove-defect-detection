@@ -1,9 +1,15 @@
 import cv2
 import numpy as np
+from PIL import Image
 
-def detect_chemical_contamination(image_path):
+def latex_detect_chemical_contamination(image):
     # Read the image
-    image = cv2.imread(image_path)
+    original_image = Image.open(image)
+    original_image = np.array(original_image)
+
+    image = cv2.resize(original_image, (500, 500))
+
+    output = image.copy()
 
     # Preprocessing
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -20,8 +26,10 @@ def detect_chemical_contamination(image_path):
     binary_image = cv2.bitwise_not(binary_image)
     contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     for contour in contours:
-        x, y, w, h = cv2.boundingRect(contour)
-        cv2.rectangle(final_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
-        cv2.putText(final_image, "Chemical Contamination", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        area = cv2.contourArea(contour)  # Calculate contour area
+        if area > 20:  # Set the threshold for contour area
+            x, y, w, h = cv2.boundingRect(contour)
+            cv2.rectangle(output, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            cv2.putText(output, "Chemical Contamination", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-    return final_image
+    return output
