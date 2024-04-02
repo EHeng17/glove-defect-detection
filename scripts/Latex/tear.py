@@ -1,71 +1,49 @@
 import cv2
 import numpy as np
+from PIL import Image
 
-class TearingGloves:
-    def __init__(self, img_path):
-        self.img = cv2.imread(img_path)
-        self.fixed_size = (500, 500)
-        self.frame = cv2.resize(self.img, self.fixed_size, fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+def latex_detect_tear(image):
+    # Read the image
+    original_image = Image.open(image)
+    original_image = np.array(original_image)
 
-    def detect(self):
-        hsv_frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2HSV)
-        # Mask for detecting glove
-        lower = np.array([85, 111, 122])
-        upper = np.array([103, 255, 255])
-        mask = cv2.inRange(hsv_frame, lower, upper)
+    original_image = cv2.resize(original_image, (500, 500), fx=0, fy=0, interpolation=cv2.INTER_CUBIC)
+    image = cv2.cvtColor(np.array(original_image), cv2.COLOR_RGB2BGR)
+    
+    output = original_image.copy()
+    
+    # Preprocessing
+    hsv_frame = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    lower = np.array([85, 111, 122])
+    upper = np.array([103, 255, 255])
+    mask = cv2.inRange(hsv_frame, lower, upper)
+    blurred_frame = cv2.medianBlur(mask, 9)
+    kernel = np.ones((3, 3), np.uint8)
+    eroded_frame = cv2.erode(blurred_frame, kernel)
 
-        # Apply median filtering
-        blurred_frame = cv2.medianBlur(mask, 9)
+    # Find contours in the mask
+    contours, hierarchy = cv2.findContours(mask.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
 
-        # Define the structuring element (kernel) for erosion
-        kernel = np.ones((3, 3), np.uint8)
+    # Draw contours on the frame
+    cv2.drawContours(eroded_frame, contours, -1, (0, 255, 0), 2)
 
-        # Perform erosion
-        eroded_frame = cv2.erode(blurred_frame, kernel)
+    # Filter out internal contours (defects within gloves)
+    internal_cnt = [contours[i] for i in range(len(contours)) if hierarchy[0][i][3] >= 0]
 
-        # Find Contours
-        contours, hierarchy = cv2.findContours(mask.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-        cv2.drawContours(eroded_frame, contours, -1, (0, 255, 0), 2)
+    # Iterate over the internal contours
+    if len(contours) > 0:
+        blue_area = max(contours, key=cv2.contourArea)
+        (xg, yg, wg, hg) = cv2.boundingRect(blue_area)
 
-        # Detect the defect within the glove
-        internal_cnt = [contours[i] for i in range(len(contours)) if hierarchy[0][i][3] >= 0]
+        if len(internal_cnt) > 0:
+            for i in internal_cnt:
+                area = cv2.contourArea(i)
+                if area > 40:
+                    xd, yd, wd, hd = cv2.boundingRect(i)
+                    cv2.rectangle(output, (xd, yd), (xd + wd, yd + hd), (0, 0, 255), 1)
 
-        if len(contours) > 0:
-            blue_area = max(contours, key=cv2.contourArea)
-            (xg, yg, wg, hg) = cv2.boundingRect(blue_area)
+                    if area > 400:
+                        output = cv2.putText(output, 'Tearing', (xd, yd - 5), cv2.FONT_HERSHEY_SIMPLEX,
+                                             0.5, (0, 0, 255), 1, cv2.LINE_AA)
 
-            # Draw rectangle for glove
-            cv2.rectangle(self.frame, (xg, yg), (xg + wg, yg + hg), (255, 0, 0), 1)
-
-            # Label the glove
-            self.frame = cv2.putText(self.frame, 'Glove', (xg, yg - 5), cv2.FONT_HERSHEY_SIMPLEX,
-                                     0.5, (255, 0, 0), 1, cv2.LINE_AA)
-
-            # Find defect
-            if len(internal_cnt) > 0:
-                for i in internal_cnt:
-                    # Check defect size
-                    area = cv2.contourArea(i)
-                    if area > 40:
-                        xd, yd, wd, hd = cv2.boundingRect(i)
-                        # Draw rectangle for defect
-                        cv2.rectangle(self.frame, (xd, yd), (xd + wd, yd + hd), (0, 0, 255), 1)
-
-                        # Label the defect
-                        if area > 400:
-                            # Defect Type: Tearing
-                            self.frame = cv2.putText(self.frame, 'Tearing', (xd, yd - 5), cv2.FONT_HERSHEY_SIMPLEX,
-                                                     0.5, (0, 0, 255), 1, cv2.LINE_AA)
-
-        cv2.imshow('Result', self.frame)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-def main():
-    # Path to the input image
-    image_path = "./defect images/Tear/tear_4.jpg"
-    detector = TearingGloves(image_path)
-    detector.detect()
-
-if __name__ == "__main__":
-    main()
+    return output
