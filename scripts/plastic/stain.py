@@ -24,13 +24,19 @@ def process(img_c, c_value = None):
     # The image is blurred using Median Blurring to remove noise
     img_gray_blur = cv2.medianBlur(img_gray, 15)
 
+    # The mean intensity of the grayscale image is calculated
     mean_value = np.mean(img_gray)
     
+    # The image is thresholded using the mean intensity value
     _, th3 = cv2.threshold(img_gray_blur, mean_value, 255, cv2.THRESH_BINARY)
 
+    # Detect the contours of the glove
     contours, _ = cv2.findContours(th3, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
+    # Find the largest contour, assuming its the glove
     glove_contours = max(contours, key = cv2.contourArea)
+
+    # Create a solid mask of the glove
     cv2.fillPoly(th3, pts=[glove_contours], color=(255, 255, 255))
 
     return th3, glove_contours
@@ -38,12 +44,10 @@ def process(img_c, c_value = None):
 def identify_color(hsv_value):
     # Define the color ranges in HSV
     color_ranges = {
-        'red': [(0, 50, 20), (10, 255, 255)],
-        'blue': [(100, 50, 50), (130, 255, 255)],
+        'blue': [(0, 50, 20), (30, 255, 255)],
         'yellow': [(25, 50, 20), (35, 255, 255)],
         'purple': [(125, 50, 20), (150, 255, 255)],
         'black': [(0, 0, 0), (180, 255, 50)],
-        # ... add other colors as needed
     }
 
     # Determine the color
@@ -69,9 +73,8 @@ def detect_stain(image):
 
     img_c = resize_image(img_c, width=650)
 
-    # Define HSV range for purple
-    lower_purple_stain = np.array([110, 50, 50])
-    upper_purple_stain = np.array([130, 255, 150])
+    lower_blue_stain = np.array([0, 50, 20])
+    upper_blue_stain = np.array([10, 255, 255])
 
     # Define HSV range for black
     lower_black_stain = np.array([0, 0, 0])
@@ -83,9 +86,11 @@ def detect_stain(image):
 
     # Segmenting out the gloves
     segmented_glove = cv2.bitwise_and(img_c, img_c, mask=glove_mask)
+
     segmented_glove_hsv = cv2.cvtColor(segmented_glove, cv2.COLOR_BGR2HSV)
 
-    purple_stain_mask = cv2.inRange(segmented_glove_hsv, lower_purple_stain, upper_purple_stain)
+    # Create mask for purple and black stains
+    purple_stain_mask = cv2.inRange(segmented_glove_hsv, lower_blue_stain, upper_blue_stain)
     black_stain_mask = cv2.inRange(segmented_glove_hsv, lower_black_stain, upper_black_stain)
 
     # Combine both stain mask
